@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { check } from "express-validator";
+
 import authController from "../controllers/authController.js";
 import {
   authMiddleware,
@@ -26,6 +27,7 @@ router.post("/signout", authController.signOut);
 router.get("/refresh", authController.refresh);
 
 router.get("/users", authController.getUsers);
+router.get("/users/:id", authController.getUser);
 // router.get("/users", authMiddleware, authController.getUsers);
 
 export default router;

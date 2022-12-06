@@ -11,6 +11,13 @@ class ArtItemService {
   }
 
   async createArtItem(title) {
+    const isArtItemExists = await ArtItem.findOne({ title });
+
+    if (isArtItemExists) {
+      throw ApiError.BadRequest(
+        `Art item with title: '${title}' is already exists`
+      );
+    }
     const artItem = await ArtItem.create({
       title,
     });

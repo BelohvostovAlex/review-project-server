@@ -201,6 +201,16 @@ class AuthService {
 
     return users;
   }
+
+  async getUser(id) {
+    const candidate = await User.findOne({ _id: id });
+
+    if (!candidate) {
+      throw ApiError.BadRequest(`User is not found`);
+    }
+
+    return candidate;
+  }
 }
 
 export default new AuthService();

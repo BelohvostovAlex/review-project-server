@@ -5,7 +5,7 @@ const ReviewSchema = new Schema({
   title: { type: String, required: true },
   artTitle: { type: Schema.Types.ObjectId, ref: "ArtItem" },
   text: { type: String, required: true },
-  image: { type: Buffer },
+  image: { type: String },
   category: { type: String, required: true },
   tags: [{ type: Schema.Types.ObjectId, ref: "Tag" }],
   grade: { type: Number, required: true },

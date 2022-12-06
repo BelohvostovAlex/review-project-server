@@ -83,6 +83,17 @@ class AuthController {
       next(error);
     }
   }
+
+  async getUser(req, res, next) {
+    try {
+      const { id } = req.params;
+      const user = await authService.getUser(id);
+
+      return res.json(user);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default new AuthController();

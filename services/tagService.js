@@ -8,6 +8,13 @@ class TagService {
   }
 
   async createTag(title) {
+    const isTagExists = await Tag.findOne({ title });
+
+    if (isTagExists) {
+      throw ApiError.BadRequest(
+        `Tag ${title} is already exists, please create another one`
+      );
+    }
     const tag = await Tag.create({
       title,
     });

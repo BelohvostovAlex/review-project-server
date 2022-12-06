@@ -10,33 +10,17 @@ export const authMiddleware = (req, res, next) => {
     }
 
     const accessToken = authorizationHeader.split(" ")[1];
-    const isCustomAccessToken = token.length < 500;
+
     if (!accessToken) {
       return next(ApiError.UnauthorizedError());
     }
 
-    if (accessToken && isCustomAccessToken) {
-      const userData = tokenService.validateAccessToken(accessToken);
-      console.log("userData my Token", userData);
+    const userData = tokenService.validateAccessToken(accessToken);
 
-      if (!userData) {
-        return next(ApiError.UnauthorizedError());
-      }
-
-      req.user = userData;
+    if (!userData) {
+      return next(ApiError.UnauthorizedError());
     }
-
-    if (accessToken && !isCustomAccessToken) {
-      const userData = tokenService.validateAccessGoogleToken(accessToken);
-      console.log("userData google Token", userData);
-
-      if (!userData) {
-        return next(ApiError.UnauthorizedError());
-      }
-
-      req.user = userData;
-    }
-
+    req.user = userData;
     next();
   } catch (error) {
     return next(ApiError.UnauthorizedError());
