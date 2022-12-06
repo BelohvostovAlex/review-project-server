@@ -4,6 +4,12 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 
+import authRouter from "./routes/authRouter.js";
+import reviewRouter from "./routes/reviewRouter.js";
+import tagRouter from "./routes/tagRouter.js";
+import artItemRouter from "./routes/artItemRouter.js";
+import { errorMiddleware } from "./middlewares/error-middleware.js";
+
 dotenv.config();
 const PORT = process.env.PORT || 5000;
 
@@ -13,7 +19,11 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
 
-app.use("/", () => console.log("hello world"));
+app.use("/auth", authRouter);
+app.use("/reviews", reviewRouter);
+app.use("/tags", tagRouter);
+app.use("/art-items", artItemRouter);
+app.use(errorMiddleware);
 
 const start = async () => {
   try {
