@@ -49,13 +49,23 @@ class ReviewsController {
 
   async likeReview(req, res, next) {
     try {
+      const { likeId } = req.body;
+      const { id } = req.params;
+
+      const review = await reviewService.likeReview(id, likeId);
+
+      return res.json(review);
     } catch (error) {
       next(error);
     }
   }
 
-  async rateReview(req, res, next) {
+  async getReview(req, res, next) {
     try {
+      const { id } = req.params;
+      const review = await reviewService.getReview(id);
+
+      return res.json(review);
     } catch (error) {
       next(error);
     }

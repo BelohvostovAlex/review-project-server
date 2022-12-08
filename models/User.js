@@ -6,6 +6,7 @@ const UserSchema = new Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     role: { type: Number, default: 0 },
+    status: { type: String, required: true, default: "Active" },
     lastEnter: { type: Date, default: Date.now },
     createdReviews: [
       { type: Schema.Types.ObjectId, ref: "Review", default: [] },

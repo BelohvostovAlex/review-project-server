@@ -2,12 +2,24 @@ import authService from "./authService.js";
 import ratingService from "./ratingService.js";
 
 import ArtItem from "../models/ArtItem.js";
+import User from "../models/User.js";
+import Rating from "../models/Rating.js";
 
 class ArtItemService {
   async getAllArtItems() {
     const artItems = await ArtItem.find();
 
     return artItems;
+  }
+
+  async getArtItem(id) {
+    const isArtItemExists = await ArtItem.findOne({ _id: id });
+
+    if (!isArtItemExists) {
+      throw ApiError.BadRequest(`Art item is not found`);
+    }
+
+    return isArtItemExists;
   }
 
   async createArtItem(title) {
@@ -26,9 +38,34 @@ class ArtItemService {
   }
 
   async rateArtItem(id, userId, rate) {
-    const user = await authService.getCurrentUser(userId);
-    const newRating = await ratingService.createRating(user.id, rate);
+    const user = await User.findOne({ _id: userId, ratedArtItems: id });
 
+    if (user) {
+      const updatedRating = await ratingService.updateRating(id, userId, rate);
+      const allRatings = await Rating.find({ artItem: id });
+      const allRates = allRatings.reduce((acc, curr) => acc + curr.rate, 0);
+      const newAverageRating = (allRates / allRatings.length).toFixed(2);
+
+      const updatedArtItem = await ArtItem.findOneAndUpdate(
+        {
+          _id: id,
+        },
+        {
+          $set: {
+            averageRating: newAverageRating,
+          },
+        },
+        {
+          returnDocument: "after",
+        }
+      );
+      return updatedArtItem;
+    }
+
+    const newRating = await ratingService.createRating(userId, rate, id);
+    const allRatings = await Rating.find({ artItem: id });
+    const allRates = allRatings.reduce((acc, curr) => acc + curr.rate, 0);
+    const newAverageRating = (allRates / allRatings.length).toFixed(2);
     const updatedArtItem = await ArtItem.findOneAndUpdate(
       {
         _id: id,
@@ -37,11 +74,15 @@ class ArtItemService {
         $push: {
           rating: newRating,
         },
+        $set: {
+          averageRating: newAverageRating,
+        },
       },
       {
         returnDocument: "after",
       }
     );
+
     const updatedUser = await authService.updateRatedArtItemsCurrentUser(
       userId,
       updatedArtItem

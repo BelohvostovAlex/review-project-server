@@ -3,7 +3,7 @@ import { Schema, model } from "mongoose";
 const ReviewSchema = new Schema({
   creator: { type: Schema.Types.ObjectId, ref: "User" },
   title: { type: String, required: true },
-  artTitle: { type: Schema.Types.ObjectId, ref: "ArtItem" },
+  artItem: { type: Schema.Types.ObjectId, ref: "ArtItem" },
   text: { type: String, required: true },
   image: { type: String },
   category: { type: String, required: true },
