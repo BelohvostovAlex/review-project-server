@@ -1,9 +1,33 @@
 import reviewService from "../services/reviewService.js";
 
 class ReviewsController {
-  async getReviews(_, res, next) {
+  async getReviews(req, res, next) {
     try {
-      const reviews = await reviewService.getAllReviews();
+      const page = parseInt(req.query.page) - 1 || 0;
+      const limit = parseInt(req.query.limit) || 8;
+      const search = req.query.search || "";
+      const category = req.query.category || "";
+      let sort = req.query.sort || "updatedAt";
+
+      req.query.sort ? (sort = req.query.sort.split(",")) : (sort = [sort]);
+
+      let sortBy = {};
+      if (sort !== "rating") {
+        if (sort[1]) {
+          sortBy[sort[0]] = sort[1];
+        } else {
+          sortBy[sort[0]] = "desc";
+        }
+      }
+
+      const reviews = await reviewService.getAllReviews(
+        page,
+        limit,
+        search,
+        sortBy,
+        category,
+        sort
+      );
 
       return res.json(reviews);
     } catch (error) {
@@ -35,6 +59,23 @@ class ReviewsController {
 
   async updateReview(req, res, next) {
     try {
+      const { id } = req.params;
+      const { creator, title, artItem, text, image, category, tags, grade } =
+        req.body;
+
+      const updatedReview = await reviewService.updateReview(
+        id,
+        creator,
+        title,
+        artItem,
+        text,
+        image,
+        category,
+        tags,
+        grade
+      );
+
+      return res.json(updatedReview);
     } catch (error) {
       next(error);
     }
@@ -42,6 +83,13 @@ class ReviewsController {
 
   async deleteReview(req, res, next) {
     try {
+      const { id } = req.params;
+      await reviewService.deleteReview(id);
+
+      return res.json({
+        success: true,
+        message: "Your review was successfully deleted",
+      });
     } catch (error) {
       next(error);
     }
@@ -66,6 +114,39 @@ class ReviewsController {
       const review = await reviewService.getReview(id);
 
       return res.json(review);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getRelatedReviews(req, res, next) {
+    try {
+      const { id } = req.params;
+      const reviews = await reviewService.getRelatedReviews(id);
+
+      return res.json(reviews);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getCreatorReviews(req, res, next) {
+    try {
+      const { id } = req.params;
+      const reviews = await reviewService.getCreatorReviews(id);
+
+      return res.json(reviews);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getCreatorLikes(req, res, next) {
+    try {
+      const { id } = req.params;
+      const likes = await reviewService.getCreatorLikes(id);
+
+      return res.json(likes);
     } catch (error) {
       next(error);
     }

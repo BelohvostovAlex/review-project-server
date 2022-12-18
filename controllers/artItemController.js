@@ -11,17 +11,6 @@ class ArtItemController {
     }
   }
 
-  async getArtItem(req, res, next) {
-    try {
-      const { id } = req.params;
-      const artItem = await artItemService.getArtItem(id);
-
-      return res.json(artItem);
-    } catch (error) {
-      next(error);
-    }
-  }
-
   async createArtItem(req, res, next) {
     try {
       const { title } = req.body;

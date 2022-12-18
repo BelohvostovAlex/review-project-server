@@ -3,13 +3,41 @@ import User from "../models/User.js";
 import authService from "./authService.js";
 
 class ReviewService {
-  async getAllReviews() {
-    const reviews = await Review.find();
+  async getAllReviews(page, limit, search, sortBy, category, sort) {
+    const reviews = await Review.find()
+      .populate([
+        "artItem",
+        {
+          path: "artItem",
+          populate: { path: "rating" },
+        },
+        "tags",
+      ])
+      .sort(sortBy)
+      .skip(page * limit)
+      .limit(limit);
+    if (sort[0] === "rating") {
+      reviews.sort((a, b) => b.artItem.averageRating - a.artItem.averageRating);
+    }
 
-    return reviews;
+    const total = await Review.countDocuments();
+
+    return {
+      reviews,
+      total,
+      page: page + 1,
+      limit,
+    };
   }
   async getReview(id) {
-    const review = await Review.findOne({ _id: id });
+    const review = await Review.findOne({ _id: id }).populate([
+      "artItem",
+      {
+        path: "artItem",
+        populate: { path: "rating" },
+      },
+      "tags",
+    ]);
 
     if (!review) {
       throw ApiError.BadRequest(`Review is not found`);
@@ -17,6 +45,24 @@ class ReviewService {
 
     return review;
   }
+
+  async getRelatedReviews(id) {
+    const reviews = await Review.find({ artItem: id }).populate([
+      "artItem",
+      {
+        path: "artItem",
+        populate: { path: "rating" },
+      },
+      "tags",
+    ]);
+
+    if (!reviews) {
+      throw ApiError.BadRequest(`Reviews are not found`);
+    }
+
+    return reviews;
+  }
+
   async createReview(
     creator,
     title,
@@ -46,18 +92,16 @@ class ReviewService {
       grade,
     });
 
-    const updatedUser = await authService.updateCreatedReviewsUser(
-      creator,
-      newReview
-    );
+    await authService.updateCreatedReviewsUser(creator, newReview);
 
     return newReview;
   }
   async likeReview(id, likeId) {
     const isReviewAlreadyLiked = await Review.findOne({
+      _id: id,
       likes: { $in: likeId },
     });
-    console.log(isReviewAlreadyLiked);
+
     if (isReviewAlreadyLiked) {
       const review = await Review.updateOne(
         {
@@ -87,7 +131,7 @@ class ReviewService {
       );
       return review;
     }
-    const review = await Review.updateOne(
+    const review = await Review.findOneAndUpdate(
       {
         _id: id,
       },
@@ -114,6 +158,65 @@ class ReviewService {
       }
     );
     return review;
+  }
+  async getCreatorLikes(id) {
+    const reviews = await Review.find({ creator: id }).populate(["likes"]);
+    const likes = reviews.reduce((acc, curr) => acc + curr.likes.length, 0);
+
+    return likes;
+  }
+
+  async getCreatorReviews(id) {
+    const reviews = await Review.find({ creator: id }).populate([
+      "artItem",
+      {
+        path: "artItem",
+        populate: { path: "rating" },
+      },
+      "tags",
+    ]);
+
+    return reviews;
+  }
+
+  async deleteReview(id) {
+    const deletedReview = await Review.deleteOne({ _id: id });
+    console.log(deletedReview);
+  }
+
+  async updateReview(
+    id,
+    creator,
+    title,
+    artItem,
+    text,
+    image,
+    category,
+    tags,
+    grade
+  ) {
+    const updatedReview = await Review.updateOne(
+      { _id: id },
+      {
+        creator,
+        title,
+        artItem,
+        text,
+        image,
+        category,
+        tags,
+        grade,
+        updatedAt: Date.now(),
+      },
+      {
+        returnDocument: "after",
+      }
+    );
+    console.log(updatedReview);
+    if (!updatedReview) {
+      throw ApiError.BadRequest(`Cant update a review...`);
+    }
+    return updatedReview;
   }
 }
 

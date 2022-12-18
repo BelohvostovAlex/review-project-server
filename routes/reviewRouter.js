@@ -8,9 +8,11 @@ import {
 
 const router = new Router();
 
-router.get("/", authMiddleware, reviewController.getReviews);
+router.get("/", reviewController.getReviews);
 router.get("/:id", reviewController.getReview);
-// router.post("/", reviewController.createReview);
+router.get("/related/:id", reviewController.getRelatedReviews);
+router.get("/creator/:id", reviewController.getCreatorReviews);
+router.get("/creator-likes/:id", reviewController.getCreatorLikes);
 router.post("/", authMiddleware, reviewController.createReview);
 router.patch("/:id", authMiddleware, reviewController.updateReview);
 router.delete("/:id", authMiddleware, reviewController.deleteReview);

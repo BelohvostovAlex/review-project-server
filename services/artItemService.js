@@ -12,16 +12,6 @@ class ArtItemService {
     return artItems;
   }
 
-  async getArtItem(id) {
-    const isArtItemExists = await ArtItem.findOne({ _id: id });
-
-    if (!isArtItemExists) {
-      throw ApiError.BadRequest(`Art item is not found`);
-    }
-
-    return isArtItemExists;
-  }
-
   async createArtItem(title) {
     const isArtItemExists = await ArtItem.findOne({ title });
 
@@ -59,6 +49,10 @@ class ArtItemService {
           returnDocument: "after",
         }
       );
+      await authService.updateRatedArtItemsCurrentUser(
+        userId,
+        updatedArtItem._id
+      );
       return updatedArtItem;
     }
 
@@ -83,9 +77,9 @@ class ArtItemService {
       }
     );
 
-    const updatedUser = await authService.updateRatedArtItemsCurrentUser(
+    await authService.updateRatedArtItemsCurrentUser(
       userId,
-      updatedArtItem
+      updatedArtItem._id
     );
 
     return updatedArtItem;

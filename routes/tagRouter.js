@@ -10,7 +10,5 @@ const router = new Router();
 
 router.get("/", tagController.getTags);
 router.post("/", tagController.createTag);
-// router.post("/", authMiddleware, tagController.createTag);
-// router.delete("/:id", authMiddleware, reviewsController.deleteReview);
 
 export default router;
