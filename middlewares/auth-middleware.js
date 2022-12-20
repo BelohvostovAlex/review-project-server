@@ -9,6 +9,7 @@ export const authMiddleware = (req, res, next) => {
     }
 
     const accessToken = authorizationHeader.split(" ")[1];
+
     if (!accessToken) {
       return next(ApiError.UnauthorizedError());
     }

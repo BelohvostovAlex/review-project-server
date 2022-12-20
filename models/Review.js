@@ -7,6 +7,7 @@ const ReviewSchema = new Schema({
   text: { type: String, required: true },
   image: { type: String },
   category: { type: String, required: true },
+  comments: [{ type: Schema.Types.ObjectId, ref: "Comment", default: [] }],
   tags: [{ type: Schema.Types.ObjectId, ref: "Tag" }],
   grade: { type: Number, required: true },
   likes: [{ type: Schema.Types.ObjectId, ref: "User" }],

@@ -34,17 +34,6 @@ class TokenService {
   validateAccessToken(token) {
     try {
       const tokenData = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-
-      return tokenData;
-    } catch (error) {
-      return null;
-    }
-  }
-
-  validateAccessGoogleToken(token) {
-    try {
-      const tokenData = jwt.decode(token);
-
       return tokenData;
     } catch (error) {
       return null;
@@ -54,7 +43,6 @@ class TokenService {
   validateRefreshToken(token) {
     try {
       const tokenData = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-
       return tokenData;
     } catch (error) {
       return null;
@@ -63,7 +51,6 @@ class TokenService {
 
   async findToken(refreshToken) {
     const tokenData = await Token.findOne({ refreshToken });
-
     return tokenData;
   }
 

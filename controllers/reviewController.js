@@ -35,6 +35,20 @@ class ReviewsController {
     }
   }
 
+  async getAllReviewsByTag(req, res, next) {
+    try {
+      const tag = req.query.tag;
+      const page = parseInt(req.query.page) - 1 || 0;
+      const limit = parseInt(req.query.limit) || 8;
+
+      const reviews = await reviewService.getAllReviewsByTag(page, limit, tag);
+
+      return res.json(reviews);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async createReview(req, res, next) {
     try {
       const { creator, title, artItem, text, image, category, tags, grade } =
@@ -147,6 +161,17 @@ class ReviewsController {
       const likes = await reviewService.getCreatorLikes(id);
 
       return res.json(likes);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async createComment(req, res, next) {
+    try {
+      const { id, userId, text } = req.body;
+      const comment = await reviewService.createComment(id, userId, text);
+
+      return res.json(comment);
     } catch (error) {
       next(error);
     }

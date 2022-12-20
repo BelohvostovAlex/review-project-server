@@ -1,3 +1,4 @@
+import Comment from "../models/Comment.js";
 import Review from "../models/Review.js";
 import User from "../models/User.js";
 import authService from "./authService.js";
@@ -20,6 +21,7 @@ class ReviewService {
       reviews.sort((a, b) => b.artItem.averageRating - a.artItem.averageRating);
     }
 
+    console.log(search);
     const total = await Review.countDocuments();
 
     return {
@@ -37,6 +39,11 @@ class ReviewService {
         populate: { path: "rating" },
       },
       "tags",
+      "comments",
+      {
+        path: "comments",
+        populate: { path: "sender" },
+      },
     ]);
 
     if (!review) {
@@ -61,6 +68,29 @@ class ReviewService {
     }
 
     return reviews;
+  }
+
+  async getAllReviewsByTag(tag, page, limit) {
+    const reviews = await Review.find({ tags: tag })
+      .populate([
+        "artItem",
+        {
+          path: "artItem",
+          populate: { path: "rating" },
+        },
+        "tags",
+      ])
+      .skip(page * limit)
+      .limit(limit);
+
+    const total = await Review.countDocuments();
+
+    return {
+      reviews,
+      total,
+      page: page + 1,
+      limit,
+    };
   }
 
   async createReview(
@@ -212,11 +242,38 @@ class ReviewService {
         returnDocument: "after",
       }
     );
-    console.log(updatedReview);
     if (!updatedReview) {
       throw ApiError.BadRequest(`Cant update a review...`);
     }
     return updatedReview;
+  }
+
+  async createComment(id, userId, text) {
+    const comment = await Comment.create({
+      review: id,
+      sender: userId,
+      text: text,
+    });
+
+    if (!comment) {
+      throw ApiError.BadRequest(`Cant create a comment...`);
+    }
+
+    await Review.updateOne(
+      {
+        _id: id,
+      },
+      {
+        $push: {
+          comments: comment,
+        },
+      },
+      {
+        returnDocument: "after",
+      }
+    );
+
+    return comment;
   }
 }
 
