@@ -7,6 +7,7 @@ export class UserDto {
   createdReviews;
   likedReviews;
   ratedArtItems;
+  enteredBySocial;
 
   constructor(model) {
     this.email = model.email;
@@ -17,5 +18,6 @@ export class UserDto {
     this.createdReviews = model.createdReviews;
     this.likedReviews = model.likedReviews;
     this.ratedArtItems = model.ratedArtItems;
+    this.enteredBySocial = model.enteredBySocial;
   }
 }

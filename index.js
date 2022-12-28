@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
+import session from "express-session";
+import passport from "passport";
 
 import authRouter from "./routes/authRouter.js";
 import reviewRouter from "./routes/reviewRouter.js";
@@ -19,12 +21,23 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
+app.use(
+  session({
+    secret: "secretcode",
+    resave: true,
+    saveUninitialized: true,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use("/auth", authRouter);
 app.use("/reviews", reviewRouter);
 app.use("/tags", tagRouter);
 app.use("/art-items", artItemRouter);
 app.use("/category", categoryRouter);
+
 app.use(errorMiddleware);
 
 mongoose.set("strictQuery", true);
