@@ -25,7 +25,8 @@ passport.use(
     {
       consumerKey: process.env.TWITTER_CLIENT_ID,
       consumerSecret: process.env.TWITTER_CLIENT_SECRET,
-      callbackURL: "http://localhost:5000/auth/twitter/callback",
+      callbackURL:
+        "https://review-project-server-production.up.railway.app/auth/twitter/callback",
       includeEmail: true,
     },
     async function (_, __, profile, cb) {
@@ -92,7 +93,8 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:5000/auth/google/callback",
+      callbackURL:
+        "https://review-project-server-production.up.railway.app/auth/google/callback",
       scope: ["profile", "email"],
       state: true,
     },
