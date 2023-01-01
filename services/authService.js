@@ -43,6 +43,10 @@ class AuthService {
       throw ApiError.BadRequest(`User with dat email: ${email} is not found`);
     }
 
+    if (candidate.status === "Blocked") {
+      throw ApiError.BadRequest(`User is blocked, contact with admin`);
+    }
+
     const isPasswordEqual = await bcrypt.compare(password, candidate.password);
 
     if (!isPasswordEqual) {
@@ -245,12 +249,6 @@ class AuthService {
     } catch (error) {
       console.log(error);
     }
-  }
-
-  async getAllUsers() {
-    const users = await User.find();
-
-    return users;
   }
 
   async getUser(id) {

@@ -92,16 +92,6 @@ class AuthController {
     }
   }
 
-  async getUsers(_, res, next) {
-    try {
-      const users = await authService.getAllUsers();
-
-      return res.json(users);
-    } catch (error) {
-      next(error);
-    }
-  }
-
   async getUser(req, res, next) {
     try {
       const { id } = req.params;

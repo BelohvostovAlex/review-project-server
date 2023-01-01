@@ -10,18 +10,6 @@ class CategoryController {
       next(error);
     }
   }
-
-  async createCategory(req, res, next) {
-    try {
-      const { title } = req.body;
-
-      const category = await categoryService.createCategory(title);
-
-      return res.json(category);
-    } catch (error) {
-      next(error);
-    }
-  }
 }
 
 export default new CategoryController();

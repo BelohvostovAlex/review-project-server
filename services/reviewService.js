@@ -21,7 +21,6 @@ class ReviewService {
       reviews.sort((a, b) => b.artItem.averageRating - a.artItem.averageRating);
     }
 
-    console.log(search);
     const total = await Review.countDocuments();
 
     return {
@@ -70,8 +69,10 @@ class ReviewService {
     return reviews;
   }
 
-  async getAllReviewsByTag(tag, page, limit) {
-    const reviews = await Review.find({ tags: tag })
+  async getAllReviewsByTag(id) {
+    const reviews = await Review.find({
+      tags: { $in: id },
+    })
       .populate([
         "artItem",
         {
@@ -80,17 +81,9 @@ class ReviewService {
         },
         "tags",
       ])
-      .skip(page * limit)
-      .limit(limit);
+      .limit(10);
 
-    const total = await Review.countDocuments();
-
-    return {
-      reviews,
-      total,
-      page: page + 1,
-      limit,
-    };
+    return reviews;
   }
 
   async createReview(

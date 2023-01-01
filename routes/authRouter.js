@@ -16,6 +16,7 @@ import User from "../models/User.js";
 import { UserDto } from "../dtos/user-dto.js";
 import tokenService from "../services/tokenService.js";
 import authService from "../services/authService.js";
+import { ApiError } from "../exceptions/api-error.js";
 
 const router = new Router();
 
@@ -28,8 +29,6 @@ passport.use(
       includeEmail: true,
     },
     async function (_, __, profile, cb) {
-      console.log(profile);
-
       const candidate = await User.findOne({ email: profile.emails[0].value });
 
       if (!candidate) {
@@ -54,6 +53,11 @@ passport.use(
 
         return cb(null, userData);
       }
+
+      if (candidate.status === "Blocked") {
+        throw ApiError.BadRequest(`User is blocked, contact with admin`);
+      }
+
       const updatedUser = await User.findOneAndUpdate(
         {
           email: candidate.email,
@@ -117,6 +121,11 @@ passport.use(
 
         return cb(null, userData);
       }
+
+      if (candidate.status === "Blocked") {
+        throw ApiError.BadRequest(`User is blocked, contact with admin`);
+      }
+
       const updatedUser = await User.findOneAndUpdate(
         {
           email: candidate.email,
@@ -170,15 +179,7 @@ router.post(
 router.post("/signin", authController.signIn);
 router.post("/signout", authController.signOut);
 router.get("/refresh", authController.refresh);
-
-router.get("/users", authController.getUsers);
 router.get("/users/:id", authController.getUser);
-router.get(
-  "/users",
-  authMiddleware,
-  isAdminMiddleware,
-  authController.getUsers
-);
 
 router.get(
   "/twitter",

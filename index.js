@@ -10,6 +10,7 @@ import authRouter from "./routes/authRouter.js";
 import reviewRouter from "./routes/reviewRouter.js";
 import tagRouter from "./routes/tagRouter.js";
 import artItemRouter from "./routes/artItemRouter.js";
+import adminRouter from "./routes/adminRouter.js";
 import categoryRouter from "./routes/categoryRouter.js";
 import { errorMiddleware } from "./middlewares/error-middleware.js";
 
@@ -37,6 +38,7 @@ app.use("/reviews", reviewRouter);
 app.use("/tags", tagRouter);
 app.use("/art-items", artItemRouter);
 app.use("/category", categoryRouter);
+app.use("/admin", adminRouter);
 
 app.use(errorMiddleware);
 
