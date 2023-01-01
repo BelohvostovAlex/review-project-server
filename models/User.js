@@ -5,7 +5,7 @@ const UserSchema = new Schema(
     username: { type: String, unique: true, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String },
-    role: { type: Number, default: 0 },
+    role: { type: Number, default: 1 },
     status: { type: String, required: true, default: "Active" },
     lastEnter: { type: Date, default: Date.now },
     createdReviews: [
