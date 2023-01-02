@@ -22,11 +22,18 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ credentials: true, origin: process.env.CLIENT_URL }));
+
+app.set("trust proxy", 1);
 app.use(
   session({
     secret: "secretcode",
     resave: true,
     saveUninitialized: true,
+    cookie: {
+      sameSite: "none",
+      secure: true,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    },
   })
 );
 
