@@ -43,6 +43,12 @@ class AuthService {
       throw ApiError.BadRequest(`User with dat email: ${email} is not found`);
     }
 
+    if (candidate && !candidate.password) {
+      throw ApiError.BadRequest(
+        `User with dat email: ${email} can login only via social media`
+      );
+    }
+
     if (candidate.status === "Blocked") {
       throw ApiError.BadRequest(`User is blocked, contact with admin`);
     }
