@@ -1,10 +1,14 @@
 import Tag from "../models/Tag.js";
 
 class TagService {
-  async getAllTags() {
-    const tags = await Tag.find();
+  async getAllTags(page, limit) {
+    const total = await Tag.countDocuments();
 
-    return tags;
+    const tags = await Tag.find()
+      .skip(page * limit)
+      .limit(limit);
+
+    return { tags, total, page: page + 1, limit };
   }
 
   async createTag(title) {
