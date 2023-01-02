@@ -33,6 +33,16 @@ passport.use(
       const candidate = await User.findOne({ email: profile.emails[0].value });
 
       if (!candidate) {
+        const isUniqueUserName = await User.findOne({
+          username: profile.username,
+        });
+
+        if (isUniqueUserName) {
+          throw ApiError.BadRequest(
+            `Username is already used, please choose another`
+          );
+        }
+
         const user = await User.create({
           email: profile.emails[0].value,
           username: profile.username,
@@ -102,6 +112,16 @@ passport.use(
       const candidate = await User.findOne({ email: profile.emails[0].value });
 
       if (!candidate) {
+        const isUniqueUserName = await User.findOne({
+          username: profile.username,
+        });
+
+        if (isUniqueUserName) {
+          throw ApiError.BadRequest(
+            `Username is already used, please choose another`
+          );
+        }
+
         const user = await User.create({
           email: profile.emails[0].value,
           username: profile.displayName,
