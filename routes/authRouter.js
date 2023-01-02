@@ -66,7 +66,7 @@ passport.use(
       }
 
       if (candidate.status === "Blocked") {
-        throw ApiError.BadRequest(`User is blocked, contact with admin`);
+        throw ApiError.BadRequest(`User is blocked, contact with admin.`);
       }
 
       const updatedUser = await User.findOneAndUpdate(
@@ -118,7 +118,7 @@ passport.use(
 
         if (isUniqueUserName) {
           throw ApiError.BadRequest(
-            `Username is already used, please choose another`
+            `Username is already used, please choose another.`
           );
         }
 
