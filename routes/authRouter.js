@@ -113,7 +113,7 @@ passport.use(
 
       if (!candidate) {
         const isUniqueUserName = await User.findOne({
-          username: profile.username,
+          username: profile.displayName,
         });
 
         if (isUniqueUserName) {
