@@ -203,8 +203,7 @@ class ReviewService {
   }
 
   async deleteReview(id) {
-    const deletedReview = await Review.deleteOne({ _id: id });
-    console.log(deletedReview);
+    await Review.deleteOne({ _id: id });
   }
 
   async updateReview(
