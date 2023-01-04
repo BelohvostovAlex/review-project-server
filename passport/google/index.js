@@ -18,8 +18,6 @@ passport.use(
       state: true,
     },
     async function (accessToken, refreshToken, profile, cb) {
-      console.log(profile);
-
       const candidate = await User.findOne({ email });
 
       if (!candidate) {

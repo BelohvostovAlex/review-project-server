@@ -43,9 +43,15 @@ class AuthService {
       throw ApiError.BadRequest(`User with dat email: ${email} is not found`);
     }
 
-    if (candidate && !candidate.password) {
+    if (candidate && !candidate.password && candidate.fromGoogle) {
       throw ApiError.BadRequest(
-        `User with dat email: ${email} can login only via social media`
+        `User with dat email: ${email} can login only via google`
+      );
+    }
+
+    if (candidate && !candidate.password && candidate.fromTwitter) {
+      throw ApiError.BadRequest(
+        `User with dat email: ${email} can login only via twitter`
       );
     }
 

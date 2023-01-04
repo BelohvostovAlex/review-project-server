@@ -45,7 +45,6 @@ class AuthController {
 
   async signInWithGoogle(req, res, next) {
     try {
-      console.log(req.user);
       const { email, username } = req.user;
 
       const userData = await authService.signInWithGoogle(email, username);

@@ -245,7 +245,6 @@ router.get(
   }
 );
 router.get("/get-user", (req, res) => {
-  console.log("yes");
   res.send(req.user);
 });
 
