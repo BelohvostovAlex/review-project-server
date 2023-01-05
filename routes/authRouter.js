@@ -223,7 +223,6 @@ router.get(
   }
 );
 
-//google
 router.get(
   "/google",
   passport.authenticate("MyGoogleStrategy", { scope: ["profile", "email"] })
