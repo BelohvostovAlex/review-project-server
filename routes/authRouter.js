@@ -61,10 +61,6 @@ passport.use(
         return cb(null, userData);
       }
 
-      if (candidate.status === "Blocked") {
-        throw ApiError.BadRequest(`User is blocked, contact with admin.`);
-      }
-
       const updatedUser = await User.findOneAndUpdate(
         {
           email: candidate.email,
@@ -140,11 +136,6 @@ passport.use(
         return cb(null, userData);
       }
 
-      if (candidate.status === "Blocked") {
-        return cb(null, `User is blocked, contact with admin`);
-        throw ApiError.BadRequest(`User is blocked, contact with admin`);
-      }
-
       const updatedUser = await User.findOneAndUpdate(
         {
           email: candidate.email,
@@ -203,6 +194,7 @@ router.get(
   "/twitter",
   passport.authenticate("twitter", { scope: ["profile", "email"] })
 );
+
 router.get(
   "/twitter/callback",
   passport.authenticate("twitter", {
@@ -238,10 +230,7 @@ router.get(
   }
 );
 router.get("/get-user", (req, res) => {
-  const user = req.user;
-  if (user) {
-    res.send(req.user);
-  }
+  res.send(req.user);
 });
 
 router.get("/social-logout", async (req, res) => {
