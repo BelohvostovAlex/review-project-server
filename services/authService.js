@@ -99,54 +99,6 @@ class AuthService {
     return token;
   }
 
-  async signInWithGoogle(email, username) {
-    const candidate = await User.findOne({ email });
-
-    if (!candidate) {
-      const user = await User.create({
-        email,
-        username,
-        fromGoogle: true,
-      });
-
-      const userDto = new UserDto(user);
-
-      const tokens = tokenService.generateTokens({
-        ...userDto,
-      });
-      await tokenService.saveToken(userDto.id, tokens.refreshToken);
-
-      return {
-        ...tokens,
-        user: userDto,
-      };
-    }
-
-    const updatedUser = await User.findOneAndUpdate(
-      {
-        email: candidate.email,
-      },
-      {
-        $set: {
-          lastEnter: Date.now(),
-        },
-      },
-      {
-        returnDocument: "after",
-      }
-    );
-
-    const userDto = new UserDto(updatedUser);
-
-    const tokens = tokenService.generateTokens({ ...userDto });
-    await tokenService.saveToken(userDto.id, tokens.refreshToken);
-
-    return {
-      ...tokens,
-      user: userDto,
-    };
-  }
-
   async refresh(refreshToken) {
     if (!refreshToken) {
       throw ApiError.UnauthorizedError();

@@ -1,4 +1,4 @@
-import GoogleStrategy from "passport-google-oauth20";
+import TwitterStrategy from "passport-twitter";
 import dotenv from "dotenv";
 
 import tokenService from "../../services/tokenService.js";
@@ -8,33 +8,32 @@ import { UserDto } from "../../dtos/user-dto.js";
 
 dotenv.config();
 
-export const googleStrategy = new GoogleStrategy(
+export const twitterStrategy = new TwitterStrategy(
   {
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: `${process.env.SERVER_URL}/auth/google/callback`,
-    scope: ["profile", "email"],
-    state: true,
+    consumerKey: process.env.TWITTER_CLIENT_ID,
+    consumerSecret: process.env.TWITTER_CLIENT_SECRET,
+    callbackURL: `${process.env.SERVER_URL}/auth/twitter/callback`,
+    includeEmail: true,
   },
   async function (_, __, profile, cb) {
     const candidate = await User.findOne({ email: profile.emails[0].value });
 
     if (!candidate) {
       const isUniqueUserName = await User.findOne({
-        username: profile.displayName,
+        username: profile.username,
       });
 
       if (isUniqueUserName) {
         throw ApiError.BadRequest(
-          `Username is already used, please choose another.`
+          `Username is already used, please choose another`
         );
       }
 
       const user = await User.create({
         email: profile.emails[0].value,
-        username: profile.displayName,
+        username: profile.username,
         enteredBySocial: true,
-        fromGoogle: true,
+        fromTwitter: true,
       });
 
       const userDto = new UserDto(user);
@@ -53,7 +52,7 @@ export const googleStrategy = new GoogleStrategy(
     }
 
     if (candidate.status === "Blocked") {
-      throw ApiError.BadRequest(`User is blocked, contact with admin`);
+      throw ApiError.BadRequest(`User is blocked, contact with admin.`);
     }
 
     const updatedUser = await User.findOneAndUpdate(

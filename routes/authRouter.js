@@ -2,180 +2,180 @@ import { Router } from "express";
 import { check } from "express-validator";
 import dotenv from "dotenv";
 import passport from "passport";
-import GoogleStrategy from "passport-google-oauth20";
-import TwitterStrategy from "passport-twitter";
+// import GoogleStrategy from "passport-google-oauth20";
+// import TwitterStrategy from "passport-twitter";
+import authController from "../controllers/authController.js";
+import { googleStrategy } from "../passport/google/index.js";
+import { twitterStrategy } from "../passport/twitter/index.js";
 
 dotenv.config();
 
-import authController from "../controllers/authController.js";
-import {
-  authMiddleware,
-  isAdminMiddleware,
-} from "../middlewares/auth-middleware.js";
-import User from "../models/User.js";
-import { UserDto } from "../dtos/user-dto.js";
-import tokenService from "../services/tokenService.js";
-import authService from "../services/authService.js";
-import { ApiError } from "../exceptions/api-error.js";
+// import User from "../models/User.js";
+// import { UserDto } from "../dtos/user-dto.js";
+// import tokenService from "../services/tokenService.js";
+
+// import { ApiError } from "../exceptions/api-error.js";
 
 const router = new Router();
 
-passport.use(
-  new TwitterStrategy(
-    {
-      consumerKey: process.env.TWITTER_CLIENT_ID,
-      consumerSecret: process.env.TWITTER_CLIENT_SECRET,
-      callbackURL:
-        "https://review-project-server-production.up.railway.app/auth/twitter/callback",
-      includeEmail: true,
-    },
-    async function (_, __, profile, cb) {
-      const candidate = await User.findOne({ email: profile.emails[0].value });
+// passport.use(
+//   new TwitterStrategy(
+//     {
+//       consumerKey: process.env.TWITTER_CLIENT_ID,
+//       consumerSecret: process.env.TWITTER_CLIENT_SECRET,
+//       callbackURL:
+//         "https://review-project-server-production.up.railway.app/auth/twitter/callback",
+//       includeEmail: true,
+//     },
+//     async function (_, __, profile, cb) {
+//       const candidate = await User.findOne({ email: profile.emails[0].value });
 
-      if (!candidate) {
-        const isUniqueUserName = await User.findOne({
-          username: profile.username,
-        });
+//       if (!candidate) {
+//         const isUniqueUserName = await User.findOne({
+//           username: profile.username,
+//         });
 
-        if (isUniqueUserName) {
-          throw ApiError.BadRequest(
-            `Username is already used, please choose another`
-          );
-        }
+//         if (isUniqueUserName) {
+//           throw ApiError.BadRequest(
+//             `Username is already used, please choose another`
+//           );
+//         }
 
-        const user = await User.create({
-          email: profile.emails[0].value,
-          username: profile.username,
-          enteredBySocial: true,
-          fromTwitter: true,
-        });
+//         const user = await User.create({
+//           email: profile.emails[0].value,
+//           username: profile.username,
+//           enteredBySocial: true,
+//           fromTwitter: true,
+//         });
 
-        const userDto = new UserDto(user);
+//         const userDto = new UserDto(user);
 
-        const tokens = tokenService.generateTokens({
-          ...userDto,
-        });
-        await tokenService.saveToken(userDto.id, tokens.refreshToken);
+//         const tokens = tokenService.generateTokens({
+//           ...userDto,
+//         });
+//         await tokenService.saveToken(userDto.id, tokens.refreshToken);
 
-        const userData = {
-          ...tokens,
-          user: userDto,
-        };
+//         const userData = {
+//           ...tokens,
+//           user: userDto,
+//         };
 
-        return cb(null, userData);
-      }
+//         return cb(null, userData);
+//       }
 
-      if (candidate.status === "Blocked") {
-        throw ApiError.BadRequest(`User is blocked, contact with admin.`);
-      }
+//       if (candidate.status === "Blocked") {
+//         throw ApiError.BadRequest(`User is blocked, contact with admin.`);
+//       }
 
-      const updatedUser = await User.findOneAndUpdate(
-        {
-          email: candidate.email,
-        },
-        {
-          $set: {
-            lastEnter: Date.now(),
-            enteredBySocial: true,
-          },
-        },
-        {
-          returnDocument: "after",
-        }
-      );
+//       const updatedUser = await User.findOneAndUpdate(
+//         {
+//           email: candidate.email,
+//         },
+//         {
+//           $set: {
+//             lastEnter: Date.now(),
+//             enteredBySocial: true,
+//           },
+//         },
+//         {
+//           returnDocument: "after",
+//         }
+//       );
 
-      const userDto = new UserDto(updatedUser);
+//       const userDto = new UserDto(updatedUser);
 
-      const tokens = tokenService.generateTokens({ ...userDto });
-      await tokenService.saveToken(userDto.id, tokens.refreshToken);
-      const userData = {
-        ...tokens,
-        user: userDto,
-      };
+//       const tokens = tokenService.generateTokens({ ...userDto });
+//       await tokenService.saveToken(userDto.id, tokens.refreshToken);
+//       const userData = {
+//         ...tokens,
+//         user: userDto,
+//       };
 
-      return cb(null, userData);
-    }
-  )
-);
+//       return cb(null, userData);
+//     }
+//   )
+// );
 
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL:
-        "https://review-project-server-production.up.railway.app/auth/google/callback",
-      scope: ["profile", "email"],
-      state: true,
-    },
-    async function (_, __, profile, cb) {
-      const candidate = await User.findOne({ email: profile.emails[0].value });
+// passport.use(
+//   new GoogleStrategy(
+//     {
+//       clientID: process.env.GOOGLE_CLIENT_ID,
+//       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+//       callbackURL:
+//         "https://review-project-server-production.up.railway.app/auth/google/callback",
+//       scope: ["profile", "email"],
+//       state: true,
+//     },
+//     async function (_, __, profile, cb) {
+//       const candidate = await User.findOne({ email: profile.emails[0].value });
 
-      if (!candidate) {
-        const isUniqueUserName = await User.findOne({
-          username: profile.displayName,
-        });
+//       if (!candidate) {
+//         const isUniqueUserName = await User.findOne({
+//           username: profile.displayName,
+//         });
 
-        if (isUniqueUserName) {
-          throw ApiError.BadRequest(
-            `Username is already used, please choose another.`
-          );
-        }
+//         if (isUniqueUserName) {
+//           throw ApiError.BadRequest(
+//             `Username is already used, please choose another.`
+//           );
+//         }
 
-        const user = await User.create({
-          email: profile.emails[0].value,
-          username: profile.displayName,
-          enteredBySocial: true,
-          fromGoogle: true,
-        });
+//         const user = await User.create({
+//           email: profile.emails[0].value,
+//           username: profile.displayName,
+//           enteredBySocial: true,
+//           fromGoogle: true,
+//         });
 
-        const userDto = new UserDto(user);
+//         const userDto = new UserDto(user);
 
-        const tokens = tokenService.generateTokens({
-          ...userDto,
-        });
-        await tokenService.saveToken(userDto.id, tokens.refreshToken);
+//         const tokens = tokenService.generateTokens({
+//           ...userDto,
+//         });
+//         await tokenService.saveToken(userDto.id, tokens.refreshToken);
 
-        const userData = {
-          ...tokens,
-          user: userDto,
-        };
+//         const userData = {
+//           ...tokens,
+//           user: userDto,
+//         };
 
-        return cb(null, userData);
-      }
+//         return cb(null, userData);
+//       }
 
-      if (candidate.status === "Blocked") {
-        throw ApiError.BadRequest(`User is blocked, contact with admin`);
-      }
+//       if (candidate.status === "Blocked") {
+//         throw ApiError.BadRequest(`User is blocked, contact with admin`);
+//       }
 
-      const updatedUser = await User.findOneAndUpdate(
-        {
-          email: candidate.email,
-        },
-        {
-          $set: {
-            lastEnter: Date.now(),
-            enteredBySocial: true,
-          },
-        },
-        {
-          returnDocument: "after",
-        }
-      );
+//       const updatedUser = await User.findOneAndUpdate(
+//         {
+//           email: candidate.email,
+//         },
+//         {
+//           $set: {
+//             lastEnter: Date.now(),
+//             enteredBySocial: true,
+//           },
+//         },
+//         {
+//           returnDocument: "after",
+//         }
+//       );
 
-      const userDto = new UserDto(updatedUser);
+//       const userDto = new UserDto(updatedUser);
 
-      const tokens = tokenService.generateTokens({ ...userDto });
-      await tokenService.saveToken(userDto.id, tokens.refreshToken);
-      const userData = {
-        ...tokens,
-        user: userDto,
-      };
+//       const tokens = tokenService.generateTokens({ ...userDto });
+//       await tokenService.saveToken(userDto.id, tokens.refreshToken);
+//       const userData = {
+//         ...tokens,
+//         user: userDto,
+//       };
 
-      return cb(null, userData);
-    }
-  )
-);
+//       return cb(null, userData);
+//     }
+//   )
+// );
+passport.use("MyGoogleStrategy", googleStrategy);
+passport.use("MyTwitterStrategy", twitterStrategy);
 
 passport.serializeUser(function (user, done) {
   return done(null, user);
@@ -205,12 +205,12 @@ router.get("/users/:id", authController.getUser);
 
 router.get(
   "/twitter",
-  passport.authenticate("twitter", { scope: ["profile", "email"] })
+  passport.authenticate("MyTwitterStrategy", { scope: ["profile", "email"] })
 );
 
 router.get(
   "/twitter/callback",
-  passport.authenticate("twitter", {
+  passport.authenticate("MyTwitterStrategy", {
     failureRedirect: `${process.env.CLIENT_URL + "/signin"}`,
   }),
   function (req, res) {
@@ -226,12 +226,12 @@ router.get(
 //google
 router.get(
   "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  passport.authenticate("MyGoogleStrategy", { scope: ["profile", "email"] })
 );
 
 router.get(
   "/google/callback",
-  passport.authenticate("google", {
+  passport.authenticate("MyGoogleStrategy", {
     failureRedirect: `${process.env.CLIENT_URL + "/signin"}`,
     failureMessage: true,
   }),
@@ -258,7 +258,5 @@ router.get("/social-logout", async (req, res) => {
     });
   }
 });
-
-// twitter
 
 export default router;
