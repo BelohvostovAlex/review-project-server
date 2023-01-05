@@ -5,18 +5,14 @@ import passport from "passport";
 import GoogleStrategy from "passport-google-oauth20";
 import TwitterStrategy from "passport-twitter";
 
-dotenv.config();
-
 import authController from "../controllers/authController.js";
-import {
-  authMiddleware,
-  isAdminMiddleware,
-} from "../middlewares/auth-middleware.js";
+import tokenService from "../services/tokenService.js";
+import { ApiError } from "../exceptions/api-error.js";
+
 import User from "../models/User.js";
 import { UserDto } from "../dtos/user-dto.js";
-import tokenService from "../services/tokenService.js";
-import authService from "../services/authService.js";
-import { ApiError } from "../exceptions/api-error.js";
+
+dotenv.config();
 
 const router = new Router();
 
@@ -145,6 +141,7 @@ passport.use(
       }
 
       if (candidate.status === "Blocked") {
+        return cb(null, `User is blocked, contact with admin`);
         throw ApiError.BadRequest(`User is blocked, contact with admin`);
       }
 
@@ -197,7 +194,6 @@ router.post(
   ],
   authController.signUp
 );
-
 router.post("/signin", authController.signIn);
 router.post("/signout", authController.signOut);
 router.get("/refresh", authController.refresh);
@@ -207,7 +203,6 @@ router.get(
   "/twitter",
   passport.authenticate("twitter", { scope: ["profile", "email"] })
 );
-
 router.get(
   "/twitter/callback",
   passport.authenticate("twitter", {
@@ -223,12 +218,10 @@ router.get(
   }
 );
 
-//google
 router.get(
   "/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
-
 router.get(
   "/google/callback",
   passport.authenticate("google", {
@@ -245,7 +238,10 @@ router.get(
   }
 );
 router.get("/get-user", (req, res) => {
-  res.send(req.user);
+  const user = req.user;
+  if (user) {
+    res.send(req.user);
+  }
 });
 
 router.get("/social-logout", async (req, res) => {
@@ -258,7 +254,5 @@ router.get("/social-logout", async (req, res) => {
     });
   }
 });
-
-// twitter
 
 export default router;
