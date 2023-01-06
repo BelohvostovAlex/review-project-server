@@ -1,5 +1,6 @@
 import Comment from "../models/Comment.js";
 import Review from "../models/Review.js";
+import ArtItem from "../models/ArtItem.js";
 import User from "../models/User.js";
 import authService from "./authService.js";
 
@@ -82,6 +83,118 @@ class ReviewService {
         "tags",
       ])
       .limit(10);
+
+    return reviews;
+  }
+
+  async searchReviews(query) {
+    // const reviews = await Review.aggregate([
+    //   {
+    //     $search: {
+    //       index: "default",
+    //       text: {
+    //         query: query,
+    //         path: ["title", "text"],
+    //       },
+    //     },
+    //   },
+    // ]);
+
+    // const artItems = await ArtItem.aggregate([
+    //   {
+    //     $search: {
+    //       index: "default",
+    //       text: {
+    //         query: query,
+    //         path: ["title"],
+    //       },
+    //     },
+    //   },
+    // ]);
+
+    // const allComments = await Comment.aggregate([
+    //   {
+    //     $search: {
+    //       index: "default",
+    //       text: {
+    //         query: query,
+    //         path: ["text"],
+    //       },
+    //     },
+    //   },
+    // ]);
+    const reviewsTitle = await Review.aggregate([
+      {
+        $search: {
+          index: "default",
+          autocomplete: {
+            query: query,
+            path: "title",
+            fuzzy: { maxEdits: 1 },
+            tokenOrder: "sequential",
+          },
+        },
+      },
+    ]);
+
+    const reviewsText = await Review.aggregate([
+      {
+        $search: {
+          index: "default",
+          autocomplete: {
+            query: query,
+            path: "text",
+            fuzzy: { maxEdits: 1 },
+            tokenOrder: "sequential",
+          },
+        },
+      },
+    ]);
+
+    const artItems = await ArtItem.aggregate([
+      {
+        $search: {
+          index: "default",
+          autocomplete: {
+            query: query,
+            path: "title",
+            fuzzy: { maxEdits: 1 },
+            tokenOrder: "sequential",
+          },
+        },
+      },
+    ]);
+
+    const allComments = await Comment.aggregate([
+      {
+        $search: {
+          index: "default",
+          autocomplete: {
+            query: query,
+            path: "text",
+            fuzzy: { maxEdits: 1 },
+            tokenOrder: "sequential",
+          },
+        },
+      },
+    ]);
+
+    const artItemsReviews = await Review.find({ artItem: { $in: artItems } });
+    const commentsReviews = await Review.find({
+      comments: { $in: allComments },
+    });
+
+    function getUniqueListBy(arr, key) {
+      return [...new Map(arr.map((item) => [item[key], item])).values()];
+    }
+
+    const all = reviewsTitle.concat(
+      reviewsText,
+      artItemsReviews,
+      commentsReviews
+    );
+
+    const reviews = getUniqueListBy(all, "title").slice(0, 10);
 
     return reviews;
   }

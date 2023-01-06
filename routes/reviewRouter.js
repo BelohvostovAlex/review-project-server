@@ -6,6 +6,7 @@ import { authMiddleware } from "../middlewares/auth-middleware.js";
 const router = new Router();
 
 router.get("/", reviewController.getReviews);
+router.get("/search", reviewController.searchReviews);
 router.get("/:id", reviewController.getReview);
 router.get("/related/:id", reviewController.getRelatedReviews);
 router.get("/tag/:id", reviewController.getAllReviewsByTag);

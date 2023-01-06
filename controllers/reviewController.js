@@ -46,6 +46,17 @@ class ReviewsController {
     }
   }
 
+  async searchReviews(req, res, next) {
+    try {
+      const query = req.query.query;
+
+      const reviews = await reviewService.searchReviews(query);
+      return res.json(reviews);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async createReview(req, res, next) {
     try {
       const { creator, title, artItem, text, image, category, tags, grade } =
