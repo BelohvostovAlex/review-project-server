@@ -88,41 +88,6 @@ class ReviewService {
   }
 
   async searchReviews(query) {
-    // const reviews = await Review.aggregate([
-    //   {
-    //     $search: {
-    //       index: "default",
-    //       text: {
-    //         query: query,
-    //         path: ["title", "text"],
-    //       },
-    //     },
-    //   },
-    // ]);
-
-    // const artItems = await ArtItem.aggregate([
-    //   {
-    //     $search: {
-    //       index: "default",
-    //       text: {
-    //         query: query,
-    //         path: ["title"],
-    //       },
-    //     },
-    //   },
-    // ]);
-
-    // const allComments = await Comment.aggregate([
-    //   {
-    //     $search: {
-    //       index: "default",
-    //       text: {
-    //         query: query,
-    //         path: ["text"],
-    //       },
-    //     },
-    //   },
-    // ]);
     const reviewsTitle = await Review.aggregate([
       {
         $search: {
